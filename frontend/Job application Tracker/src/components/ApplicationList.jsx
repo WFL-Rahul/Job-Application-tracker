@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 
 function ApplicationList({ applications }) {
   const [filters, setFilters] = useState({
@@ -7,6 +7,9 @@ function ApplicationList({ applications }) {
     dateFrom: '',
     dateTo: ''
   })
+  useEffect(() => {
+    setEditedApplications(applications)
+  }, [applications])
 
   const [appliedFilters, setAppliedFilters] = useState(filters)
   const [editedApplications, setEditedApplications] = useState(applications)
