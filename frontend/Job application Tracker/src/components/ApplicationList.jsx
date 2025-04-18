@@ -1,20 +1,21 @@
 import { useState, useMemo, useEffect } from 'react'
 
-function ApplicationList({ applications }) {
+function ApplicationList({ applications, onUpdate, onDelete }) {
   const [filters, setFilters] = useState({
     company: '',
     status: '',
     dateFrom: '',
     dateTo: ''
   })
-  useEffect(() => {
-    setEditedApplications(applications)
-  }, [applications])
 
   const [appliedFilters, setAppliedFilters] = useState(filters)
   const [editedApplications, setEditedApplications] = useState(applications)
   const [currentlyEditingId, setCurrentlyEditingId] = useState(null)
   const [editForm, setEditForm] = useState({})
+
+  useEffect(() => {
+    setEditedApplications(applications)
+  }, [applications])
 
   const handleFilterChange = (e) => {
     setFilters({
@@ -51,18 +52,13 @@ function ApplicationList({ applications }) {
   }
 
   const handleSave = () => {
-    setEditedApplications(prev =>
-      prev.map(app =>
-        app.id === currentlyEditingId ? { ...editForm } : app
-      )
-    )
+    onUpdate(currentlyEditingId, editForm)
     setCurrentlyEditingId(null)
     setEditForm({})
   }
 
   const handleDelete = (app) => {
-    const updatedList = editedApplications.filter(a => a.id !== app.id)
-    setEditedApplications(updatedList)
+    onDelete(app.id)
   }
 
   const filteredApplications = useMemo(() => {
@@ -105,7 +101,7 @@ function ApplicationList({ applications }) {
 
   return (
     <div className="applications-container">
-      {/* Filters Section */}
+      {/* Filters Section starts heree... */}
       <div className="filter-section">
         <h2>Filter Applications</h2>
         <div className="filters">
@@ -253,7 +249,7 @@ function ApplicationList({ applications }) {
         </table>
       </div>
 
-      {/*  Summary Stats Section ---- its working fine, noooo issues hereee */}
+      {/* Summary Stats */}
       <div className="summary-stats" style={{ marginTop: '2rem' }}>
         <h3>Application Summary</h3>
         <ul>
