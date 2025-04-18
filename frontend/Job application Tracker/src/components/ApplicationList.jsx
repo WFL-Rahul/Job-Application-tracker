@@ -9,6 +9,9 @@ function ApplicationList({ applications }) {
   })
 
   const [appliedFilters, setAppliedFilters] = useState(filters)
+  const [editedApplications, setEditedApplications] = useState(applications)
+  const [currentlyEditingId, setCurrentlyEditingId] = useState(null)
+  const [editForm, setEditForm] = useState({})
 
   const handleFilterChange = (e) => {
     setFilters({
@@ -32,7 +35,34 @@ function ApplicationList({ applications }) {
     setAppliedFilters(reset)
   }
 
-  const filteredApplications = applications.filter(app => {
+  const handleEdit = (app) => {
+    setCurrentlyEditingId(app.id)
+    setEditForm({ ...app })
+  }
+
+  const handleEditChange = (e) => {
+    setEditForm({
+      ...editForm,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleSave = () => {
+    setEditedApplications(prev =>
+      prev.map(app =>
+        app.id === currentlyEditingId ? { ...editForm } : app
+      )
+    )
+    setCurrentlyEditingId(null)
+    setEditForm({})
+  }
+
+  const handleDelete = (app) => {
+    const updatedList = editedApplications.filter(a => a.id !== app.id)
+    setEditedApplications(updatedList)
+  }
+
+  const filteredApplications = editedApplications.filter(app => {
     const matchesCompany =
       appliedFilters.company === '' ||
       app.company.toLowerCase().includes(appliedFilters.company.toLowerCase())
@@ -112,27 +142,86 @@ function ApplicationList({ applications }) {
         <table>
           <thead>
             <tr>
-              <th>Company <span className="sort-icon">▼</span></th>
-              <th>Position <span className="sort-icon">▼</span></th>
+              <th>Company</th>
+              <th>Position</th>
               <th>Location</th>
-              <th>Status <span className="sort-icon">▼</span></th>
-              <th>Date Applied <span className="sort-icon">▼</span></th>
+              <th>Status</th>
+              <th>Date Applied</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredApplications.length > 0 ? (
               filteredApplications.map(app => (
                 <tr key={app.id}>
-                  <td>{app.company}</td>
-                  <td>{app.position}</td>
-                  <td>{app.location}</td>
-                  <td>{app.status}</td>
-                  <td>{app.dateApplied}</td>
+                  {currentlyEditingId === app.id ? (
+                    <>
+                      <td>
+                        <input
+                          type="text"
+                          name="company"
+                          value={editForm.company}
+                          onChange={handleEditChange}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="position"
+                          value={editForm.position}
+                          onChange={handleEditChange}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="location"
+                          value={editForm.location}
+                          onChange={handleEditChange}
+                        />
+                      </td>
+                      <td>
+                        <select
+                          name="status"
+                          value={editForm.status}
+                          onChange={handleEditChange}
+                        >
+                          <option value="Applied">Applied</option>
+                          <option value="Interview">Interview</option>
+                          <option value="Offer">Offer</option>
+                          <option value="Rejected">Rejected</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          type="date"
+                          name="dateApplied"
+                          value={editForm.dateApplied}
+                          onChange={handleEditChange}
+                        />
+                      </td>
+                      <td>
+                        <button onClick={handleSave}>Save</button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td>{app.company}</td>
+                      <td>{app.position}</td>
+                      <td>{app.location}</td>
+                      <td>{app.status}</td>
+                      <td>{app.dateApplied}</td>
+                      <td>
+                        <button onClick={() => handleEdit(app)}>Edit</button>
+                        <button onClick={() => handleDelete(app)}>Delete</button>
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="empty-message">No job applications found.</td>
+                <td colSpan="6" className="empty-message">No job applications found.</td>
               </tr>
             )}
           </tbody>
