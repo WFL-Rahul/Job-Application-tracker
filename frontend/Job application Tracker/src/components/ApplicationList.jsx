@@ -8,6 +8,8 @@ function ApplicationList({ applications }) {
     dateTo: ''
   })
 
+  const [appliedFilters, setAppliedFilters] = useState(filters)
+
   const handleFilterChange = (e) => {
     setFilters({
       ...filters,
@@ -15,17 +17,38 @@ function ApplicationList({ applications }) {
     })
   }
 
+  const applyFilters = () => {
+    setAppliedFilters(filters)
+  }
+
   const resetFilters = () => {
-    setFilters({
+    const reset = {
       company: '',
       status: '',
       dateFrom: '',
       dateTo: ''
-    })
+    }
+    setFilters(reset)
+    setAppliedFilters(reset)
   }
 
-  // In a real app, this would filter based on the filters state
-  const filteredApplications = applications
+  const filteredApplications = applications.filter(app => {
+    const matchesCompany =
+      appliedFilters.company === '' ||
+      app.company.toLowerCase().includes(appliedFilters.company.toLowerCase())
+
+    const matchesStatus =
+      appliedFilters.status === '' || app.status === appliedFilters.status
+
+    const appDate = new Date(app.dateApplied)
+    const fromDate = appliedFilters.dateFrom ? new Date(appliedFilters.dateFrom) : null
+    const toDate = appliedFilters.dateTo ? new Date(appliedFilters.dateTo) : null
+
+    const matchesDateFrom = !fromDate || appDate >= fromDate
+    const matchesDateTo = !toDate || appDate <= toDate
+
+    return matchesCompany && matchesStatus && matchesDateFrom && matchesDateTo
+  })
 
   return (
     <div className="applications-container">
@@ -81,7 +104,7 @@ function ApplicationList({ applications }) {
 
         <div className="filter-actions">
           <button className="reset-button" onClick={resetFilters}>Reset</button>
-          <button className="apply-button">Apply Filters</button>
+          <button className="apply-button" onClick={applyFilters}>Apply Filters</button>
         </div>
       </div>
 
