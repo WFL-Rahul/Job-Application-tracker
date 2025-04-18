@@ -253,7 +253,7 @@ function ApplicationList({ applications }) {
         </table>
       </div>
 
-      {/* 📊 Summary Stats Section */}
+      {/*  Summary Stats Section ---- its working fine, noooo issues hereee */}
       <div className="summary-stats" style={{ marginTop: '2rem' }}>
         <h3>Application Summary</h3>
         <ul>
