@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 function ApplicationList({ applications }) {
   const [filters, setFilters] = useState({
@@ -62,26 +62,47 @@ function ApplicationList({ applications }) {
     setEditedApplications(updatedList)
   }
 
-  const filteredApplications = editedApplications.filter(app => {
-    const matchesCompany =
-      appliedFilters.company === '' ||
-      app.company.toLowerCase().includes(appliedFilters.company.toLowerCase())
+  const filteredApplications = useMemo(() => {
+    return editedApplications.filter(app => {
+      const matchesCompany =
+        appliedFilters.company === '' ||
+        app.company.toLowerCase().includes(appliedFilters.company.toLowerCase())
 
-    const matchesStatus =
-      appliedFilters.status === '' || app.status === appliedFilters.status
+      const matchesStatus =
+        appliedFilters.status === '' || app.status === appliedFilters.status
 
-    const appDate = new Date(app.dateApplied)
-    const fromDate = appliedFilters.dateFrom ? new Date(appliedFilters.dateFrom) : null
-    const toDate = appliedFilters.dateTo ? new Date(appliedFilters.dateTo) : null
+      const appDate = new Date(app.dateApplied)
+      const fromDate = appliedFilters.dateFrom ? new Date(appliedFilters.dateFrom) : null
+      const toDate = appliedFilters.dateTo ? new Date(appliedFilters.dateTo) : null
 
-    const matchesDateFrom = !fromDate || appDate >= fromDate
-    const matchesDateTo = !toDate || appDate <= toDate
+      const matchesDateFrom = !fromDate || appDate >= fromDate
+      const matchesDateTo = !toDate || appDate <= toDate
 
-    return matchesCompany && matchesStatus && matchesDateFrom && matchesDateTo
-  })
+      return matchesCompany && matchesStatus && matchesDateFrom && matchesDateTo
+    })
+  }, [editedApplications, appliedFilters])
+
+  const summary = useMemo(() => {
+    const stats = {
+      total: filteredApplications.length,
+      Applied: 0,
+      Interview: 0,
+      Offer: 0,
+      Rejected: 0
+    }
+
+    filteredApplications.forEach(app => {
+      if (stats[app.status] !== undefined) {
+        stats[app.status]++
+      }
+    })
+
+    return stats
+  }, [filteredApplications])
 
   return (
     <div className="applications-container">
+      {/* Filters Section */}
       <div className="filter-section">
         <h2>Filter Applications</h2>
         <div className="filters">
@@ -138,6 +159,7 @@ function ApplicationList({ applications }) {
         </div>
       </div>
 
+      {/* Applications Table */}
       <div className="applications-table">
         <table>
           <thead>
@@ -226,6 +248,18 @@ function ApplicationList({ applications }) {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* 📊 Summary Stats Section */}
+      <div className="summary-stats" style={{ marginTop: '2rem' }}>
+        <h3>Application Summary</h3>
+        <ul>
+          <li><strong>Total:</strong> {summary.total}</li>
+          <li><strong>Applied:</strong> {summary.Applied}</li>
+          <li><strong>Interview:</strong> {summary.Interview}</li>
+          <li><strong>Offer:</strong> {summary.Offer}</li>
+          <li><strong>Rejected:</strong> {summary.Rejected}</li>
+        </ul>
       </div>
     </div>
   )
