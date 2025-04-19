@@ -7,8 +7,8 @@ function Navbar() {
           <h1>Job Application Tracker</h1>
         </div>
         <ul className="nav-links">
-          <li><a href="#" className="active">Dashboard</a></li>
-          <li><a href="#">Applications</a></li>
+          {/* <li><a href="#" className="active">Dashboard</a></li>
+          <li><a href="#">Applications</a></li> */}
         </ul>
       </div>
     </nav>
